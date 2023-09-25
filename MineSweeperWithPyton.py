@@ -1,5 +1,10 @@
 import tkinter
 
+class Cell_t:
+    def __init__(self):
+        value = 0
+        visible = False
+ 
 def Board(rows, columns):
     pass
 def SetBoard(self):
