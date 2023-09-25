@@ -1,4 +1,5 @@
 import tkinter
+from random import randint
 
 class Cell_t:
     def __init__(self):
@@ -7,9 +8,17 @@ class Cell_t:
  
 class Board_t:
     def __init__(self, rows, columns, mines):
-        for row in rows:
-            for column in columns:
+        for row in range(rows):
+            for column in range(columns):
                 self[row][column] = Cell_t()
+        #Set mines
+        for mine in range(mines):
+            row = randint() % rows
+            column = randint() % columns
+            while self[row][column].value == 9:
+                row = randint() % rows
+                column = randint() % columns
+            self[row][column].value = 9
             
 def SetBoard(self):
     pass
@@ -26,7 +35,7 @@ if __name__ == "__main__":
     button00 = tkinter.Button(window)
     button01 = tkinter.Button(window)
     button10 = tkinter.Button(window)
-    button11 = tkinter.Button(window)
+    button11 = tkinter.Label(window, text="1")
     
     button00.grid(row = 0, column = 0)
     button01.grid(row = 0, column = 1)
