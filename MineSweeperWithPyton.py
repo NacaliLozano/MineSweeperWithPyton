@@ -5,8 +5,12 @@ class Cell_t:
         value = 0
         visible = False
  
-def Board(rows, columns):
-    pass
+class Board_t:
+    def __init__(self, rows, columns, mines):
+        for row in rows:
+            for column in columns:
+                self[row][column] = Cell_t()
+            
 def SetBoard(self):
     pass
 def pushCell(self):
