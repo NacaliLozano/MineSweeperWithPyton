@@ -32,8 +32,23 @@ def setBoard():
     for row in range(Board.rows):
         for column in range(Board.columns):
             if Board.board[row][column].value == 9:
-                if row - 1 in range(Board.rows) and column -1 in range(Board.columns):
+                if row - 1 in range(Board.rows) and column - 1 in range(Board.columns):
                     Board.board[row - 1][column - 1].value += 1
+                if row - 1 in range(Board.rows):
+                    Board.board[row - 1][column].value += 1
+                if row - 1 in range(Board.rows) and column + 1 in range(Board.columns):
+                    Board.board[row - 1][column + 1].value += 1
+                if column - 1 in range(Board.columns):
+                    Board.board[row][column - 1].value += 1
+                if column + 1 in range(Board.columns):
+                    Board.board[row][column + 1].value += 1
+                if row + 1 in range(Board.rows) and column - 1 in range(Board.columns):
+                    Board.board[row + 1][column - 1].value += 1
+                if row + 1 in range(Board.rows):
+                    Board.board[row + 1][column].value += 1
+                if row + 1 in range(Board.rows) and column + 1 in range(Board.columns):
+                    Board.board[row + 1][column + 1].value += 1
+    return Board
 def pushCell(self):
     pass
 def youLose():
