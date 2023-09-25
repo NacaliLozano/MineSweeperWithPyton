@@ -12,7 +12,16 @@ def youWin(self):
     pass
 if __name__ == "__main__":
     window = tkinter.Tk()
-    button1 = tkinter.Button(window, text = "Push", command = lambda: print("Hello World"))
-    button1.pack()
+    
+    
+    button00 = tkinter.Button(window)
+    button01 = tkinter.Button(window)
+    button10 = tkinter.Button(window)
+    button11 = tkinter.Button(window)
+    
+    button00.grid(row = 0, column = 0)
+    button01.grid(row = 0, column = 1)
+    button10.grid(row = 1, column = 0)
+    button11.grid(row = 1, column = 1)
     
     window.mainloop()
