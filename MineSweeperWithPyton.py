@@ -2,52 +2,56 @@ import tkinter
 from random import randint
 
 class Cell_t:
-    def __init__(self):
+    def __init__(self, row, column):
         self.value = 0
         self.visible = False
+        self.row = row
+        self.column = column
+        self.button = tkinter.Button(window)
+        self.button.grid(row = row, column = column)
  
 class Board_t:
     def __init__(self, rows, columns, mines):
         self.rows = rows
         self.columns = columns
         self.mines = mines
-        self.board = []
+        self.cells = []
         for row in range(rows):
-            self.board.append([])
+            self.cells.append([])
             for column in range(columns):
-                self.board[row].append(Cell_t())
+                self.cells[row].append(Cell_t(row, column))
         #Set mines
         for mine in range(mines):
             row = randint(0, rows -1)
             column = randint(0, columns - 1)
-            while self.board[row][column].value == 9:
+            while self.cells[row][column].value == 9:
                 row = randint(0, rows -1)
                 column = randint(0, columns - 1)
-            self.board[row][column].value = 9
+            self.cells[row][column].value = 9
     def __len__(self):
-        return len(self.board)
+        return len(self.cells)
             
-def setBoard():
-    Board = Board_t(14, 18, 40)
+def setBoard(Board):
+    """Sets the values of the cells with a mine nearby"""
     for row in range(Board.rows):
         for column in range(Board.columns):
-            if Board.board[row][column].value == 9:
+            if Board.cells[row][column].value == 9:
                 if row - 1 in range(Board.rows) and column - 1 in range(Board.columns):
-                    Board.board[row - 1][column - 1].value += 1
+                    Board.cells[row - 1][column - 1].value += 1
                 if row - 1 in range(Board.rows):
-                    Board.board[row - 1][column].value += 1
+                    Board.cells[row - 1][column].value += 1
                 if row - 1 in range(Board.rows) and column + 1 in range(Board.columns):
-                    Board.board[row - 1][column + 1].value += 1
+                    Board.cells[row - 1][column + 1].value += 1
                 if column - 1 in range(Board.columns):
-                    Board.board[row][column - 1].value += 1
+                    Board.cells[row][column - 1].value += 1
                 if column + 1 in range(Board.columns):
-                    Board.board[row][column + 1].value += 1
+                    Board.cells[row][column + 1].value += 1
                 if row + 1 in range(Board.rows) and column - 1 in range(Board.columns):
-                    Board.board[row + 1][column - 1].value += 1
+                    Board.cells[row + 1][column - 1].value += 1
                 if row + 1 in range(Board.rows):
-                    Board.board[row + 1][column].value += 1
+                    Board.cells[row + 1][column].value += 1
                 if row + 1 in range(Board.rows) and column + 1 in range(Board.columns):
-                    Board.board[row + 1][column + 1].value += 1
+                    Board.cells[row + 1][column + 1].value += 1
     return Board
 def pushCell(self):
     pass
@@ -56,19 +60,10 @@ def youLose():
 def youWin(self):
     pass
 if __name__ == "__main__":
-    setBoard()
+    
     window = tkinter.Tk()
+    Board = setBoard(Board_t(14, 18, 40))
     
-    
-    button00 = tkinter.Button(window)
-    button01 = tkinter.Button(window)
-    button10 = tkinter.Button(window)
-    button11 = tkinter.Label(window, text="1")
-    
-    button00.grid(row = 0, column = 0)
-    button01.grid(row = 0, column = 1)
-    button10.grid(row = 1, column = 0)
-    button11.grid(row = 1, column = 1)
-    
+    #button11 = tkinter.Label(window, text="1")
     window.mainloop()
     
