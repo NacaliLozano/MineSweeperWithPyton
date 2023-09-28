@@ -20,6 +20,8 @@ class Board_t:
             self.cells.append([])
             for column in range(columns):
                 self.cells[row].append(Cell_t(row, column))
+                self.cells[row][column].button.bind('<Button-1>', pushCell(self, row, column))
+                self.cells[row][column].button.bind('<Button-3>', rightClick(self, row, column))
         #Set mines
         for mine in range(mines):
             row = randint(0, rows -1)
@@ -31,30 +33,57 @@ class Board_t:
     def __len__(self):
         return len(self.cells)
             
-def setBoard(Board):
+def setBoard(self):
     """Sets the values of the cells with a mine nearby"""
-    for row in range(Board.rows):
-        for column in range(Board.columns):
-            if Board.cells[row][column].value == 9:
-                if row - 1 in range(Board.rows) and column - 1 in range(Board.columns):
-                    Board.cells[row - 1][column - 1].value += 1
-                if row - 1 in range(Board.rows):
-                    Board.cells[row - 1][column].value += 1
-                if row - 1 in range(Board.rows) and column + 1 in range(Board.columns):
-                    Board.cells[row - 1][column + 1].value += 1
-                if column - 1 in range(Board.columns):
-                    Board.cells[row][column - 1].value += 1
-                if column + 1 in range(Board.columns):
-                    Board.cells[row][column + 1].value += 1
-                if row + 1 in range(Board.rows) and column - 1 in range(Board.columns):
-                    Board.cells[row + 1][column - 1].value += 1
-                if row + 1 in range(Board.rows):
-                    Board.cells[row + 1][column].value += 1
-                if row + 1 in range(Board.rows) and column + 1 in range(Board.columns):
-                    Board.cells[row + 1][column + 1].value += 1
-    return Board
-def pushCell(self):
-    pass
+    for row in range(self.rows):
+        for column in range(self.columns):
+            if self.cells[row][column].value == 9:
+                if row - 1 in range(self.rows) and column - 1 in range(self.columns):
+                    self.cells[row - 1][column - 1].value += 1
+                if row - 1 in range(self.rows):
+                    self.cells[row - 1][column].value += 1
+                if row - 1 in range(self.rows) and column + 1 in range(self.columns):
+                    self.cells[row - 1][column + 1].value += 1
+                if column - 1 in range(self.columns):
+                    self.cells[row][column - 1].value += 1
+                if column + 1 in range(self.columns):
+                    self.cells[row][column + 1].value += 1
+                if row + 1 in range(self.rows) and column - 1 in range(self.columns):
+                    self.cells[row + 1][column - 1].value += 1
+                if row + 1 in range(self.rows):
+                    self.cells[row + 1][column].value += 1
+                if row + 1 in range(self.rows) and column + 1 in range(self.columns):
+                    self.cells[row + 1][column + 1].value += 1
+    return self
+
+def pushCell(self, row, column):
+    if row in range(self.rows) and column in range(self.columns):
+        self.cells[row][column].button = tkinter.Label(window, text=str(self.cells[row][column].value))
+        if self.cells[row][column].value == 9:
+            youLose()
+        else:
+            if self.cells[row][column].value == 0:
+                if row - 1 in range(self.rows) and column - 1 in range(self.columns):
+                    pushCell(self, row - 1, column - 1)
+                if row - 1 in range(self.rows):
+                    pushCell(self, row - 1, column)
+                if row - 1 in range(self.rows) and column + 1 in range(self.columns):
+                    pushCell(self, row - 1, column + 1)
+                if column - 1 in range(self.columns):
+                    pushCell(self, row, column - 1)
+                if column + 1 in range(self.columns):
+                    pushCell(self, row, column + 1)
+                if row + 1 in range(self.rows) and column - 1 in range(self.columns):
+                    pushCell(self, row + 1, column - 1)
+                if row + 1 in range(self.rows):
+                    pushCell(self, row + 1, column)
+                if row + 1 in range(self.rows) and column + 1 in range(self.columns):
+                    pushCell(self, row + 1, column + 1)
+            
+def rightClick(self, row, column):
+    self[row][column].button = tkinter.Button(window,fg='red')
+    self[row][column].button.bind('<Button-1>')
+    #self[row][column].button.bind('<Button-3>', )
 def youLose():
     pass
 def youWin(self):
