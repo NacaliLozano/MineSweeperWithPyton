@@ -20,8 +20,8 @@ class Board_t:
             self.cells.append([])
             for column in range(columns):
                 self.cells[row].append(Cell_t(row, column))
-                self.cells[row][column].button.bind('<Button-1>', pushCell(self, row, column))
-                self.cells[row][column].button.bind('<Button-3>', rightClick(self, row, column))
+                self.cells[row][column].button.bind('<Button-1>', lambda event: pushCell(self, row, column))
+                self.cells[row][column].button.bind('<Button-3>', lambda event: rightClick(self, row, column))
         #Set mines
         for mine in range(mines):
             row = randint(0, rows -1)
@@ -57,10 +57,13 @@ def setBoard(self):
     return self
 
 def pushCell(self, row, column):
-    if row in range(self.rows) and column in range(self.columns):
+    """Reveals the cell and neighbour cells"""
+    if self.cells[row][column].visible == False:
+        self.cells[row][column].visible = True
         self.cells[row][column].button = tkinter.Label(window, text=str(self.cells[row][column].value))
         if self.cells[row][column].value == 9:
             youLose()
+            return
         else:
             if self.cells[row][column].value == 0:
                 if row - 1 in range(self.rows) and column - 1 in range(self.columns):
