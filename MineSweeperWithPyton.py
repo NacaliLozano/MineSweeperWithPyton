@@ -60,7 +60,9 @@ def pushCell(self, row, column):
     """Reveals the cell and neighbour cells"""
     if self.cells[row][column].visible == False:
         self.cells[row][column].visible = True
+        self.cells[row][column].button.destroy()
         self.cells[row][column].button = tkinter.Label(window, text=str(self.cells[row][column].value))
+        self.cells[row][column].button.grid(row = row, column = column)
         if self.cells[row][column].value == 9:
             youLose()
             return
