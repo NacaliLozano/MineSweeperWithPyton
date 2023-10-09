@@ -2,8 +2,9 @@
 import tkinter
 from tkinter import messagebox
 from random import randint
+import time
 
-class Cell_t:
+class Cell:
     def __init__(self, row, column):
         self.value = 0
         self.visible = False
@@ -13,7 +14,7 @@ class Cell_t:
         self.button.grid(row = row, column = column)
         self.label = None
  
-class Board_t:
+class Board:
     def __init__(self, rows, columns, mines):
         """Initializes an empty board and sets the mines"""
         if mines >= rows * columns:
@@ -25,7 +26,7 @@ class Board_t:
         for row in range(rows):
             self.cells.append([])
             for column in range(columns):
-                self.cells[row].append(Cell_t(row, column))
+                self.cells[row].append(Cell(row, column))
                 self.cells[row][column].button.bind('<Button-1>', lambda event, row = row, column = column: self.pushCell(row, column))
                 self.cells[row][column].button.bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
         #Set mines
@@ -135,10 +136,45 @@ class Board_t:
         else:
             return False
 
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.fileName = name + ".msg" #MineSweeper Game
+        self.record = None
+        
+    def getName(self):
+        pass
+    
+    def getRecord(self):
+        pass
+
+class Game:
+    def __init_(self):
+        self.player = Player("Nacali")
+        self.board = Board(14, 18, 40)
+        self.board.setBoard()
+        self.startTimer = time.time()
+    
+    def save(self):
+        pass
+    
+    def load(self):
+        pass
+    
+    def getPlayer(self):
+        pass
+    
+    def getTime(self):
+        pass
+    
+    def getBoard(self):
+        pass
+    
+    def newGame(self):
+        pass
+        
 if __name__ == "__main__":
     window = tkinter.Tk()
-    Board = Board_t(14, 18, 40)
-    Board.setBoard()
-    #button11 = tkinter.Label(window, text="1")
+    game = Game()
     window.mainloop()
     
