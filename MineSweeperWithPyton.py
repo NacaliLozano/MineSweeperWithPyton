@@ -150,7 +150,7 @@ class Player:
 
 class Game:
     def __init_(self):
-        self.player = Player("Nacali")
+        self.player = Player("Nacali") 
         self.board = Board(14, 18, 40)
         self.board.setBoard()
         self.startTimer = time.time()
