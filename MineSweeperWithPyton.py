@@ -3,6 +3,7 @@ import tkinter
 from tkinter import messagebox
 from random import randint
 import time
+import pickle
 
 class Cell:
     def __init__(self, row, column):
@@ -22,6 +23,7 @@ class Board:
         self.rows = rows
         self.columns = columns
         self.mines = mines
+        self.remainingCoveredCells = rows * columns
         self.cells = []
         for row in range(rows):
             self.cells.append([])
@@ -72,7 +74,9 @@ class Board:
             return
         self.cells[row][column].visible = True
         #Return early if player won
-        if self.youWin():
+        self.remainingCoveredCells -= 1
+        if self.remainingCoveredCells == self.mines:
+            self.youWin()
             self.showAllCells()
             tkinter.messagebox.showinfo("Game over","You Win!!!")
             return
@@ -125,53 +129,75 @@ class Board:
         messagebox.showinfo("Game over","You lost!!!")
         
     def youWin(self):
-        notVisible = 0
-        for row in range(self.rows):
-            for column in range(self.columns):
-                if not self.cells[row][column].visible:
-                    notVisible += 1
-        print(notVisible)
-        if notVisible == self.mines:
-            return True
-        else:
-            return False
-
+        self.showAllCells()
+        tkinter.messagebox.showinfo("Game over","You Win!!!")
+        
 class Player:
     def __init__(self, name):
         self.name = name
-        self.fileName = name + ".msg" #MineSweeper Game
+        self.fileName = self.name + ".msg" #MineSweeper Game
         self.record = None
         
     def getName(self):
-        pass
+        return self.name
     
     def getRecord(self):
-        pass
+        return self.record
+    
+    def getFileName(self):
+        return self.fileName
 
 class Game:
-    def __init_(self):
-        self.player = Player("Nacali") 
+    def __init_(self, name):
+        self.player = Player(name)
         self.board = Board(14, 18, 40)
         self.board.setBoard()
         self.startTimer = time.time()
     
     def save(self):
-        pass
+        game = {"Board" = self.board, "Time" = self.getTime()}
+        try:
+            with open(self.player.getFileName(), "w") as f:
+                f.pickle.dump(game)
+            return True
+        except:
+            return False
     
     def load(self):
-        pass
+        try:
+            with open(self.player.getFileName(), "r") as f:
+                game = pickle.load(f)
+                self.board = game["Board"]
+                self.startTimer = time.time() - game["Time"]
+            return True
+        except:
+            return False
     
     def getPlayer(self):
-        pass
+        return self.player
     
     def getTime(self):
-        pass
+        return time.time() - self.startTimer
     
     def getBoard(self):
+        return self.board
+    
+    def doMove(self, row, column):
         pass
     
-    def newGame(self):
-        pass
+    def reset(self):
+        try:
+            self.board = Board(self.board.rows, self.board.columns, self.board.mines)
+            self.startTimer = time.time()
+            return True
+        except:
+            return False
+    def end(self):
+        try:
+            self.board.showAllCells()
+            return True
+        except:
+            return False
         
 if __name__ == "__main__":
     window = tkinter.Tk()
