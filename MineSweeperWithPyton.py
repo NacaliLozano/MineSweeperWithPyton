@@ -49,8 +49,6 @@ class Board:
             self.cells.append([])
             for column in range(columns):
                 self.cells[row].append(Cell(row, column))
-                self.cells[row][column].button.bind('<Button-1>', lambda event, row = row, column = column: self.pushCell(row, column))
-                self.cells[row][column].button.bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
         #Set mines
         for mine in range(mines):
             row = randint(0, rows -1)
@@ -84,67 +82,38 @@ class Board:
                         self.cells[row + 1][column + 1].value += 1
         return self
     
-    def pushCell(self, row, column):
-        """Reveals the cell and neighbour cells"""
-        #Return early if the cell is already visible
-        if self.cells[row][column].visible:
-            return
-        #Return early if stepped on a mine
-        if self.cells[row][column].value >= 9:
-            self.youLose()
-            return
-        self.cells[row][column].visible = True
-        #Return early if player won
-        self.remainingCoveredCells -= 1
-        if self.remainingCoveredCells == self.mines:
-            self.youWin()
-            self.showAllCells()
-            tkinter.messagebox.showinfo("Game over","You Win!!!")
-            return
-        #Turn the button into a label
-        self.cells[row][column].button.destroy()
-        self.cells[row][column].button = None
-        self.cells[row][column].label = tkinter.Label(window, text=str(self.cells[row][column].value))
-        self.cells[row][column].label.grid(row = row, column = column)
-        #Trigger neighbour cells
-        if self.cells[row][column].value == 0:
-            if row - 1 in range(self.rows) and column - 1 in range(self.columns):
-                self.pushCell(row - 1, column - 1)
-            if row - 1 in range(self.rows):
-                self.pushCell(row - 1, column)
-            if row - 1 in range(self.rows) and column + 1 in range(self.columns):
-                self.pushCell(row - 1, column + 1)
-            if column - 1 in range(self.columns):
-                self.pushCell(row, column - 1)
-            if column + 1 in range(self.columns):
-                self.pushCell(row, column + 1)
-            if row + 1 in range(self.rows) and column - 1 in range(self.columns):
-                self.pushCell(row + 1, column - 1)
-            if row + 1 in range(self.rows):
-                self.pushCell(row + 1, column)
-            if row + 1 in range(self.rows) and column + 1 in range(self.columns):
-                self.pushCell(row + 1, column + 1)
-                
-    def rightClick(self, row, column):
-        self.cells[row][column].button.configure(bg="red")
-        self.cells[row][column].button.unbind('<Button-1>')
-        self.cells[row][column].button.bind('<Button-3>', lambda event, row = row, column = column: self.secondRightClick(row, column))
+    def getCell(self, row, column):
+        return self.cells[row][column]
     
-    def secondRightClick(self, row, column):
-        self.cells[row][column].button.bind('<Button-1>', lambda event, row = row, column = column: self.pushCell(row, column))
-        self.cells[row][column].button.bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
-        self.cells[row][column].button.configure(bg="SystemButtonFace")
+    def getRows(self):
+        return self.rows
+    
+    def getColumns(self):
+        return self.columns
+    
+    def getMines(self):
+        return self.mines
+    
+    def getRemainingCoveredCells(self):
+        return self.remainingCoveredCells
+    
+    def setRemainingCoveredCells(self, value):
+        try:
+            self.remainingCoveredCells = value
+            return True
+        except:
+            return False
 
     def showAllCells(self):
-        for row in range(self.rows):
-            for column in range(self.columns):
-                if self.cells[row][column].button == None:
-                    continue
-                self.cells[row][column].button.destroy()
-                self.cells[row][column].button = None
-                self.cells[row][column].label = tkinter.Label(window, text=str(self.cells[row][column].value))
-                self.cells[row][column].label.grid(row = row, column = column)
-
+        try:
+            for row in range(self.rows):
+                for column in range(self.columns):
+                    if self.cells[row][column].isFlipped():
+                        continue
+                    self.cells[row][column].setFlipped()
+            return True
+        except:
+            return False
     def youLose(self):
         self.showAllCells()
         messagebox.showinfo("Game over","You lost!!!")
@@ -204,15 +173,39 @@ class Game:
         return self.board
     
     def doMove(self, row, column):
-        pass
+        """Flips a Cell and neighbour cells"""
+        #Return early if the cell is already visible
+        if self.board.getCell(row, column).isFlipped():
+            return
+        #Return early if stepped on a mine
+        if self.board.getCell(row, column).getValue() >= 9:
+            self.youLoose()
+            return
+        #Set Cell to visible
+        self.board.getCell(row, column).setFlipped()
+        #Decrement RemainingCoveredCells
+        self.board.setRemainingCoveredCells(self.board.getRemainingCoveredCells() - 1)
+        #Return if player won
+        if self.board.getRemainingCoveredCells() == self.board.getMines():
+            self.youWin()
+            return
+        #Trigger neighbour cells
+        if self.board.getCell(row, column).getValue() == 0:
+            for incrementRows in [-1, 0, 1]:
+                for incrementColumns in [-1, 0, 1]:
+                    if row + incrementRows in range(self.board.getRows()) and column + incrementColumns in range(self.board.getColumns()):
+                        if incrementRows == 0 and incrementColumns == 0:
+                            continue
+                        self.doMove(row + incrementRows, column + incrementColumns)  
     
     def reset(self):
         try:
-            self.board = Board(self.board.rows, self.board.columns, self.board.mines)
+            self.board = Board(self.board.getRows(), self.board.getColumns(), self.board.getMines())
             self.startTimer = time.time()
             return True
         except:
             return False
+        
     def end(self):
         try:
             self.board.showAllCells()
