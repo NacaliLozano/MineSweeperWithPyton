@@ -6,15 +6,35 @@ import time
 import pickle
 
 class Cell:
-    def __init__(self, row, column):
+    def __init__(self):
+        """Creates a Cell"""
         self.value = 0
-        self.visible = False
-        self.row = row
-        self.column = column
-        self.button = tkinter.Button(window, height= 1, width=1)
-        self.button.grid(row = row, column = column)
-        self.label = None
- 
+        self.isFlipped = False
+        return self
+    
+    def setValue(self, value):
+        """Sets the value of a Cell"""
+        try:
+            self.value = value
+            return True
+        except:
+            return False
+        
+    def getValue(self):
+        return self.value
+    
+    def setFlipped(self):
+        """Sets a Cell to flipped state"""
+        try:
+            self.isFlipped = True
+            return True
+        except:
+            return False
+    
+    def isFlipped(self):
+        return self.isFlipped
+    
+    
 class Board:
     def __init__(self, rows, columns, mines):
         """Initializes an empty board and sets the mines"""
@@ -39,6 +59,7 @@ class Board:
                 row = randint(0, rows -1)
                 column = randint(0, columns - 1)
             self.cells[row][column].value = 9
+        return self
             
     def setBoard(self):
         """Sets the values of the cells with a mine nearby"""
@@ -155,7 +176,7 @@ class Game:
         self.startTimer = time.time()
     
     def save(self):
-        game = {"Board" = self.board, "Time" = self.getTime()}
+        game = {"Board": self.board, "Time": self.getTime()}
         try:
             with open(self.player.getFileName(), "w") as f:
                 f.pickle.dump(game)
