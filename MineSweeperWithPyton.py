@@ -75,22 +75,12 @@ class Board:
         for row in range(self.rows):
             for column in range(self.columns):
                 if self.cells[row][column].value >= 9:
-                    if row - 1 in range(self.rows) and column - 1 in range(self.columns):
-                        self.cells[row - 1][column - 1].value += 1
-                    if row - 1 in range(self.rows):
-                        self.cells[row - 1][column].value += 1
-                    if row - 1 in range(self.rows) and column + 1 in range(self.columns):
-                        self.cells[row - 1][column + 1].value += 1
-                    if column - 1 in range(self.columns):
-                        self.cells[row][column - 1].value += 1
-                    if column + 1 in range(self.columns):
-                        self.cells[row][column + 1].value += 1
-                    if row + 1 in range(self.rows) and column - 1 in range(self.columns):
-                        self.cells[row + 1][column - 1].value += 1
-                    if row + 1 in range(self.rows):
-                        self.cells[row + 1][column].value += 1
-                    if row + 1 in range(self.rows) and column + 1 in range(self.columns):
-                        self.cells[row + 1][column + 1].value += 1
+                    for incrementRows in [-1, 0, 1]:
+                        for incrementColumns in [-1, 0, 1]:
+                            if row + incrementRows in range(self.rows) and column + incrementColumns in range(self.columns):
+                                if incrementRows == 0 and incrementColumns == 0:
+                                    continue
+                                self.cells[row + incrementRows][column + incrementColumns].value += 1
         return self
     
     def getCell(self, row, column):
