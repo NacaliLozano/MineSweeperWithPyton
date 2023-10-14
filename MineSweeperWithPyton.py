@@ -115,13 +115,7 @@ class Board:
             return True
         except:
             return False
-    def youLose(self):
-        self.showAllCells()
-        messagebox.showinfo("Game over","You lost!!!")
-        
-    def youWin(self):
-        self.showAllCells()
-        tkinter.messagebox.showinfo("Game over","You Win!!!")
+
         
 class Player:
     def __init__(self, name):
@@ -197,7 +191,8 @@ class Game:
                     if row + incrementRows in range(self.board.getRows()) and column + incrementColumns in range(self.board.getColumns()):
                         if incrementRows == 0 and incrementColumns == 0:
                             continue
-                        self.doMove(row + incrementRows, column + incrementColumns)  
+                        self.doMove(row + incrementRows, column + incrementColumns)
+        self.save()
     
     def reset(self):
         try:
@@ -213,9 +208,16 @@ class Game:
             return True
         except:
             return False
+    def youLose(self):
+        self.board.showAllCells()
+        messagebox.showinfo("Game over","You lost!!!")
+        
+    def youWin(self):
+        self.board.showAllCells()
+        tkinter.messagebox.showinfo("Game over","You Win!!!")
         
 if __name__ == "__main__":
     window = tkinter.Tk()
-    game = Game()
+    game = Game("Nacali")
     window.mainloop()
     
