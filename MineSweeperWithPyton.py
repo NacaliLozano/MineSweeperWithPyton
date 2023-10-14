@@ -34,6 +34,17 @@ class Cell:
     def isFlipped(self):
         return self.isFlipped
     
+    def swapFlipped(self):
+        """Swaps the value of isFlipped"""
+        try:
+            if self.isFlipped:
+                self.isFlipped = False
+            else:
+                self.setFlipped()
+            return True
+        except:
+            return False
+    
     
 class Board:
     def __init__(self, rows, columns, mines):
