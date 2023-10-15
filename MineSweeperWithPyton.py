@@ -1,16 +1,17 @@
 
 import tkinter
-from tkinter import messagebox
-from random import randint
+import tkinter.simpledialog
+import random
 import time
 import pickle
+import os
+
 
 class Cell:
     def __init__(self):
         """Creates a Cell"""
         self.value = 0
         self.isFlipped = False
-        return self
     
     def setValue(self, value):
         """Sets the value of a Cell"""
@@ -59,16 +60,15 @@ class Board:
         for row in range(rows):
             self.cells.append([])
             for column in range(columns):
-                self.cells[row].append(Cell(row, column))
+                self.cells[row].append(Cell())
         #Set mines
         for mine in range(mines):
-            row = randint(0, rows -1)
-            column = randint(0, columns - 1)
+            row = random.randint(0, rows -1)
+            column = random.randint(0, columns - 1)
             while self.cells[row][column].value == 9:
-                row = randint(0, rows -1)
-                column = randint(0, columns - 1)
+                row = random.randint(0, rows -1)
+                column = random.randint(0, columns - 1)
             self.cells[row][column].value = 9
-        return self
             
     def setBoard(self):
         """Sets the values of the cells with a mine nearby"""
@@ -126,6 +126,9 @@ class Player:
     def getName(self):
         return self.name
     
+    def setName(self, name):
+        self.name = name
+    
     def getRecord(self):
         return self.record
     
@@ -133,11 +136,13 @@ class Player:
         return self.fileName
 
 class Game:
-    def __init_(self, name):
-        self.player = Player(name)
-        self.board = Board(14, 18, 40)
-        self.board.setBoard()
-        self.startTimer = time.time()
+    def __init_(self):
+        self.player = None
+        self.board = None
+        self.startTimer = None
+    
+    def requestName(self):
+        return tkinter.simpledialog.askstring("Minesweeper", ">")
     
     def save(self):
         game = {"Board": self.board, "Time": self.getTime()}
@@ -210,14 +215,34 @@ class Game:
             return False
     def youLose(self):
         self.board.showAllCells()
-        messagebox.showinfo("Game over","You lost!!!")
+        tkinter.messagebox.showinfo("Game over","You lost!!!")
         
     def youWin(self):
         self.board.showAllCells()
         tkinter.messagebox.showinfo("Game over","You Win!!!")
         
+    def gameLoop(self):
+        window = tkinter.Tk()
+        self.player = Player(self.requestName())
+        if os.path.exists(self.player.getFileName()):
+            self.load()
+        else:
+            self.board = Board(14, 18, 40)
+            self.startTimer = time.time()
+        buttons = []
+        for row in range(self.board.getRows()):
+            buttons.append([])
+            for column in range(self.board.getColumns()):
+                buttons[row].append(tkinter.Button(window, height = 1, width = 1))
+                buttons[row][column].grid(row = row, column = column)
+                buttons[row][column].bind('<Button-1>', lambda event, row = row, column = column: self.doMove(row, column))
+                buttons[row][column].bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
+        window.mainloop()
+        
 if __name__ == "__main__":
-    window = tkinter.Tk()
-    game = Game("Nacali")
-    window.mainloop()
+    #window = tkinter.Tk()
+    game = Game()
+    game.gameLoop()
+    
+    #window.mainloop()
     
