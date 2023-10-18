@@ -11,7 +11,7 @@ class Cell:
     def __init__(self):
         """Creates a Cell"""
         self.value = 0
-        self.isFlipped = False
+        self.flipped = False
     
     def setValue(self, value):
         """Sets the value of a Cell"""
@@ -27,19 +27,19 @@ class Cell:
     def setFlipped(self):
         """Sets a Cell to flipped state"""
         try:
-            self.isFlipped = True
+            self.flipped = True
             return True
         except:
             return False
     
     def isFlipped(self):
-        return self.isFlipped
+        return self.flipped
     
     def swapFlipped(self):
-        """Swaps the value of isFlipped"""
+        """Swaps the value of flipped"""
         try:
-            if self.isFlipped:
-                self.isFlipped = False
+            if self.flipped:
+                self.flipped = False
             else:
                 self.setFlipped()
             return True
@@ -243,7 +243,7 @@ class Game:
         window = tkinter.Tk()
         playerName = self.requestName()
         if os.path.exists(playerName + ".msg"):
-            self.load()
+            self.load(playerName + ".msg")
         else:
             self.newGame()
         buttons = []
