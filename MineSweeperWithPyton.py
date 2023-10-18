@@ -229,7 +229,7 @@ class Game:
         except:
             return False
         
-    def youLose(self):
+    def youLoose(self):
         self.end()
         tkinter.messagebox.showinfo("Game over","You lost!!!")
         
