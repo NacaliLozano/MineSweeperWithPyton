@@ -145,20 +145,33 @@ class Game:
         return tkinter.simpledialog.askstring("Minesweeper", ">")
     
     def save(self):
-        game = {"Board": self.board, "Time": self.getTime()}
+        game = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
         try:
             with open(self.player.getFileName(), "w") as f:
                 f.pickle.dump(game)
             return True
         except:
             return False
-    
-    def load(self):
+
+    def newGame(self):
         try:
-            with open(self.player.getFileName(), "r") as f:
+            self.board = Board(14, 18, 40)
+            self.startTimer = time.time()
+            return True
+        except:
+            return False
+    
+    def load(self, fileName):
+        try:
+            with open(fileName, "r") as f:
                 game = pickle.load(f)
-                self.board = game["Board"]
-                self.startTimer = time.time() - game["Time"]
+                if game["Board"] == None:
+                    self.player = game["Player"]
+                    self.newGame()
+                else:
+                    self.board = game["Board"]
+                    self.startTimer = time.time() - game["Time"]
+                    self.player = game["Player"]
             return True
         except:
             return False
@@ -210,25 +223,29 @@ class Game:
     def end(self):
         try:
             self.board.showAllCells()
+            self.board = None
+            self.save()
             return True
         except:
             return False
+        
     def youLose(self):
-        self.board.showAllCells()
+        self.end()
         tkinter.messagebox.showinfo("Game over","You lost!!!")
         
     def youWin(self):
-        self.board.showAllCells()
+        if self.getTime() - self.startTimer < self.player.getRecord():
+            self.player.setRecord(self.getTime() - self.startTimer)
+        self.end()
         tkinter.messagebox.showinfo("Game over","You Win!!!")
         
     def gameLoop(self):
         window = tkinter.Tk()
-        self.player = Player(self.requestName())
-        if os.path.exists(self.player.getFileName()):
+        playerName = self.requestName()
+        if os.path.exists(playerName + ".msg"):
             self.load()
         else:
-            self.board = Board(14, 18, 40)
-            self.startTimer = time.time()
+            self.newGame()
         buttons = []
         for row in range(self.board.getRows()):
             buttons.append([])
