@@ -38,10 +38,7 @@ class Cell:
     def swapFlipped(self):
         """Swaps the value of flipped"""
         try:
-            if self.flipped:
-                self.flipped = False
-            else:
-                self.setFlipped()
+            self.flipped = not self.flipped
             return True
         except:
             return False
@@ -65,7 +62,7 @@ class Board:
         for mine in range(mines):
             row = random.randint(0, rows -1)
             column = random.randint(0, columns - 1)
-            while self.cells[row][column].value == 9:
+            while self.cells[row][column].value >= 9:
                 row = random.randint(0, rows -1)
                 column = random.randint(0, columns - 1)
             self.cells[row][column].value = 9
@@ -136,7 +133,7 @@ class Player:
         return self.fileName
 
 class Game:
-    def __init_(self):
+    def __init__(self):
         self.player = None
         self.board = None
         self.startTimer = None
@@ -156,6 +153,7 @@ class Game:
     def newGame(self):
         try:
             self.board = Board(14, 18, 40)
+            self.board.setBoard()
             self.startTimer = time.time()
             return True
         except:
@@ -196,6 +194,7 @@ class Game:
             return
         #Set Cell to visible
         self.board.getCell(row, column).setFlipped()
+        self
         #Decrement RemainingCoveredCells
         self.board.setRemainingCoveredCells(self.board.getRemainingCoveredCells() - 1)
         #Return if player won
@@ -245,6 +244,7 @@ class Game:
         if os.path.exists(playerName + ".msg"):
             self.load(playerName + ".msg")
         else:
+            self.player = Player(playerName)
             self.newGame()
         buttons = []
         for row in range(self.board.getRows()):
@@ -252,7 +252,7 @@ class Game:
             for column in range(self.board.getColumns()):
                 buttons[row].append(tkinter.Button(window, height = 1, width = 1))
                 buttons[row][column].grid(row = row, column = column)
-                buttons[row][column].bind('<Button-1>', lambda event, row = row, column = column: self.doMove(row, column))
+                buttons[row][column].bind('<Button-1>', lambda event, row = row, column = column: self.doMove(row, column), buttons[row][column].destroy())
                 buttons[row][column].bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
         window.mainloop()
         
