@@ -71,13 +71,13 @@ class Board:
         """Sets the values of the cells with a mine nearby"""
         for row in range(self.rows):
             for column in range(self.columns):
-                if self.cells[row][column].value >= 9:
+                if self.cells[row][column].getValue() >= 9:
                     for incrementRows in [-1, 0, 1]:
                         for incrementColumns in [-1, 0, 1]:
                             if row + incrementRows in range(self.rows) and column + incrementColumns in range(self.columns):
                                 if incrementRows == 0 and incrementColumns == 0:
                                     continue
-                                self.cells[row + incrementRows][column + incrementColumns].value += 1
+                                self.cells[row + incrementRows][column + incrementColumns].setValue(self.cells[row + incrementRows][column + incrementColumns].getValue() + 1)
         return self
     
     def getCell(self, row, column):
