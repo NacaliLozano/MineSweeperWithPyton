@@ -12,7 +12,9 @@ class Cell:
         """Creates a Cell"""
         self.value = 0
         self.flipped = False
-    
+        self.button = None
+        self.label = None
+        
     def setValue(self, value):
         """Sets the value of a Cell"""
         try:
@@ -42,8 +44,7 @@ class Cell:
             return True
         except:
             return False
-    
-    
+        
 class Board:
     def __init__(self, rows, columns, mines):
         """Initializes an empty board and sets the mines"""
@@ -129,6 +130,9 @@ class Player:
     def getRecord(self):
         return self.record
     
+    def setRecord(self, record):
+        self.record = record
+        
     def getFileName(self):
         return self.fileName
 
@@ -139,13 +143,13 @@ class Game:
         self.startTimer = None
     
     def requestName(self):
-        return tkinter.simpledialog.askstring("Minesweeper", ">")
+        return tkinter.simpledialog.askstring("Minesweeper", "Enter your name:")
     
     def save(self):
         game = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
         try:
-            with open(self.player.getFileName(), "w") as f:
-                f.pickle.dump(game)
+            with open(self.player.getFileName(), "wb") as f:
+                f.pickle.dump(game, f)
             return True
         except:
             return False
@@ -158,10 +162,11 @@ class Game:
             return True
         except:
             return False
+
     
     def load(self, fileName):
         try:
-            with open(fileName, "r") as f:
+            with open(fileName, "rb") as f:
                 game = pickle.load(f)
                 if game["Board"] == None:
                     self.player = game["Player"]
@@ -173,6 +178,7 @@ class Game:
             return True
         except:
             return False
+        #TODO corregir
     
     def getPlayer(self):
         return self.player
@@ -194,7 +200,15 @@ class Game:
             return
         #Set Cell to visible
         self.board.getCell(row, column).setFlipped()
-        self
+        self.board.getCell(row, column).button.destroy()
+        cellValue = self.board.getCell(row, column).getValue()
+        if cellValue >= 9:
+            self.board.getCell(row, column).label = tkinter.Label(text = "X")
+        elif cellValue > 0:
+            self.board.getCell(row, column).label = tkinter.Label(text = str(cellValue))
+        else:
+            self.board.getCell(row, column).label = tkinter.Label(text = "")
+        self.board.getCell(row, column).label.grid(row = row, column = column)
         #Decrement RemainingCoveredCells
         self.board.setRemainingCoveredCells(self.board.getRemainingCoveredCells() - 1)
         #Return if player won
@@ -233,27 +247,27 @@ class Game:
         tkinter.messagebox.showinfo("Game over","You lost!!!")
         
     def youWin(self):
-        if self.getTime() - self.startTimer < self.player.getRecord():
-            self.player.setRecord(self.getTime() - self.startTimer)
+        if self.getTime() - self.startTimer < self.player.getRecord() or self.player.getRecord() is None:
+            self.player.setRecord(self.getTime())
         self.end()
         tkinter.messagebox.showinfo("Game over","You Win!!!")
         
     def gameLoop(self):
         window = tkinter.Tk()
         playerName = self.requestName()
+    
         if os.path.exists(playerName + ".msg"):
             self.load(playerName + ".msg")
         else:
-            self.player = Player(playerName)
+            self.player = self.Player(playerName)
+        if self.board is None:
             self.newGame()
-        buttons = []
         for row in range(self.board.getRows()):
-            buttons.append([])
             for column in range(self.board.getColumns()):
-                buttons[row].append(tkinter.Button(window, height = 1, width = 1))
-                buttons[row][column].grid(row = row, column = column)
-                buttons[row][column].bind('<Button-1>', lambda event, row = row, column = column: self.doMove(row, column), buttons[row][column].destroy())
-                buttons[row][column].bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
+                self.board.getCell(row, column).button = tkinter.Button(window, height = 1, width = 1)
+                self.board.getCell(row, column).button.grid(row=row, column=column)
+                self.board.getCell(row, column).button.bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
+    
         window.mainloop()
         
 if __name__ == "__main__":
