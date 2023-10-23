@@ -11,7 +11,7 @@ class Cell:
     def __init__(self, row, column):
         """Creates a Cell"""
         self.value = 0
-        self.flipped = False
+        self.visible = False
         self.button = None
         self.label = None
         self.row = row
@@ -28,9 +28,9 @@ class Cell:
     def getValue(self):
         return self.value
     
-    def setFlipped(self):
-        """Sets a Cell to flipped state"""
-        if self.flipped:
+    def setVisible(self):
+        """Sets a Cell to visible state"""
+        if self.visible:
             return False
         try:
             self.button.destroy()
@@ -42,18 +42,18 @@ class Cell:
             else:
                 self.label = tkinter.Label(text = "")
             self.label.grid(row = self.row, column = self.column)
-            self.flipped = True
+            self.visible = True
             return True
         except:
             return False
     
-    def isFlipped(self):
-        return self.flipped
+    def isVisible(self):
+        return self.visible
     
-    def swapFlipped(self):
-        """Swaps the value of flipped"""
+    def swapVisible(self):
+        """Swaps the value of visible"""
         try:
-            self.flipped = not self.flipped
+            self.visible = not self.visible
             return True
         except:
             return False
@@ -120,9 +120,9 @@ class Board:
         try:
             for row in range(self.rows):
                 for column in range(self.columns):
-                    if self.cells[row][column].isFlipped():
+                    if self.cells[row][column].isVisible():
                         continue
-                    self.cells[row][column].setFlipped()
+                    self.cells[row][column].setVisible()
             return True
         except:
             return False
@@ -169,7 +169,7 @@ class Game:
 
     def newGame(self):
         try:
-            self.board = Board(14, 18, 40)
+            self.board = Board(14, 18, 1)
             self.board.setBoard()
             self.startTimer = time.time()
             return True
@@ -205,14 +205,14 @@ class Game:
     def doMove(self, row, column):
         """Flips a Cell and neighbour cells"""
         #Return early if the cell is already visible
-        if self.board.getCell(row, column).isFlipped():
+        if self.board.getCell(row, column).isVisible():
             return
         #Return early if stepped on a mine
         if self.board.getCell(row, column).getValue() >= 9:
             self.youLoose()
             return
         #Set Cell to visible
-        self.board.getCell(row, column).setFlipped()
+        self.board.getCell(row, column).setVisible()
         #Decrement RemainingCoveredCells
         self.board.setRemainingCoveredCells(self.board.getRemainingCoveredCells() - 1)
         #Return if player won
@@ -256,6 +256,15 @@ class Game:
         self.end()
         tkinter.messagebox.showinfo("Game over","You Win!!!")
         
+    def rightClick(self, row, column):
+        self.board.getCell(row, column).button.unbind('<Button-1>')
+        self.board.getCell(row, column).button.configure(bg="red")
+        self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.secondRightClick(row, column))
+        
+    def secondRightClick(self, row, column):
+        self.board.getCell(row, column).button.bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
+        self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.rightClick(row, column))
+        
     def gameLoop(self):
         window = tkinter.Tk()
         playerName = self.requestName()
@@ -271,7 +280,7 @@ class Game:
                 self.board.getCell(row, column).button = tkinter.Button(window, height = 1, width = 1)
                 self.board.getCell(row, column).button.grid(row=row, column=column)
                 self.board.getCell(row, column).button.bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
-    
+                self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.rightClick(row, column))
         window.mainloop()
         
 if __name__ == "__main__":
