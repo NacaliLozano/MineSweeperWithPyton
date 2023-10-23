@@ -8,12 +8,14 @@ import os
 
 
 class Cell:
-    def __init__(self):
+    def __init__(self, row, column):
         """Creates a Cell"""
         self.value = 0
         self.flipped = False
         self.button = None
         self.label = None
+        self.row = row
+        self.column = column
         
     def setValue(self, value):
         """Sets the value of a Cell"""
@@ -28,7 +30,18 @@ class Cell:
     
     def setFlipped(self):
         """Sets a Cell to flipped state"""
+        if self.flipped:
+            return False
         try:
+            self.button.destroy()
+            cellValue = self.getValue()
+            if cellValue >= 9:
+                self.label = tkinter.Label(text = "X")
+            elif cellValue > 0:
+                self.label = tkinter.Label(text = str(cellValue))
+            else:
+                self.label = tkinter.Label(text = "")
+            self.label.grid(row = self.row, column = self.column)
             self.flipped = True
             return True
         except:
@@ -58,7 +71,7 @@ class Board:
         for row in range(rows):
             self.cells.append([])
             for column in range(columns):
-                self.cells[row].append(Cell())
+                self.cells[row].append(Cell(row, column))
         #Set mines
         for mine in range(mines):
             row = random.randint(0, rows -1)
@@ -200,15 +213,6 @@ class Game:
             return
         #Set Cell to visible
         self.board.getCell(row, column).setFlipped()
-        self.board.getCell(row, column).button.destroy()
-        cellValue = self.board.getCell(row, column).getValue()
-        if cellValue >= 9:
-            self.board.getCell(row, column).label = tkinter.Label(text = "X")
-        elif cellValue > 0:
-            self.board.getCell(row, column).label = tkinter.Label(text = str(cellValue))
-        else:
-            self.board.getCell(row, column).label = tkinter.Label(text = "")
-        self.board.getCell(row, column).label.grid(row = row, column = column)
         #Decrement RemainingCoveredCells
         self.board.setRemainingCoveredCells(self.board.getRemainingCoveredCells() - 1)
         #Return if player won
