@@ -5,6 +5,7 @@ import random
 import time
 import pickle
 import os
+from pickle import NONE
 
 
 class Cell:
@@ -12,8 +13,6 @@ class Cell:
         """Creates a Cell"""
         self.value = 0
         self.visible = False
-        self.button = None
-        self.label = None
         self.row = row
         self.column = column
         
@@ -33,15 +32,6 @@ class Cell:
         if self.visible:
             return False
         try:
-            self.button.destroy()
-            cellValue = self.getValue()
-            if cellValue >= 9:
-                self.label = tkinter.Label(text = "X")
-            elif cellValue > 0:
-                self.label = tkinter.Label(text = str(cellValue))
-            else:
-                self.label = tkinter.Label(text = "")
-            self.label.grid(row = self.row, column = self.column)
             self.visible = True
             return True
         except:
@@ -152,17 +142,25 @@ class Player:
 class Game:
     def __init__(self):
         self.player = None
-        self.board = None
+        self.board = Board(14, 18, 1)
         self.startTimer = None
+        self.buttons = []
+        self.labels = []
+        for row in range(self.board.getRows()):
+            self.buttons.append([])
+            self.labels.append([])
+            for column in range(self.board.getColumns()):
+                self.buttons[row].append(None)
+                self.labels[row].append(None)
     
     def requestName(self):
         return tkinter.simpledialog.askstring("Minesweeper", "Enter your name:")
     
     def save(self):
-        game = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
+        gameDict = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
         try:
             with open(self.player.getFileName(), "wb") as f:
-                f.pickle.dump(game, f)
+                f.pickle.dump(gameDict, f)
             return True
         except:
             return False
@@ -176,22 +174,19 @@ class Game:
         except:
             return False
 
-    
     def load(self, fileName):
         try:
             with open(fileName, "rb") as f:
-                game = pickle.load(f)
-                if game["Board"] == None:
-                    self.player = game["Player"]
+                gameDict = pickle.load(f)
+                if gameDict["Board"] == None:
                     self.newGame()
                 else:
-                    self.board = game["Board"]
-                    self.startTimer = time.time() - game["Time"]
-                    self.player = game["Player"]
+                    self.board = gameDict["Board"]
+                    self.startTimer = time.time() - gameDict["Time"]
+                self.player = gameDict["Player"]
             return True
         except:
             return False
-        #TODO corregir
     
     def getPlayer(self):
         return self.player
@@ -204,6 +199,8 @@ class Game:
     
     def doMove(self, row, column):
         """Flips a Cell and neighbour cells"""
+        if self.board is None:
+            return
         #Return early if the cell is already visible
         if self.board.getCell(row, column).isVisible():
             return
@@ -213,6 +210,8 @@ class Game:
             return
         #Set Cell to visible
         self.board.getCell(row, column).setVisible()
+        self.buttons[row][column].destroy()
+        self.setLabel(row, column)
         #Decrement RemainingCoveredCells
         self.board.setRemainingCoveredCells(self.board.getRemainingCoveredCells() - 1)
         #Return if player won
@@ -227,7 +226,10 @@ class Game:
                         if incrementRows == 0 and incrementColumns == 0:
                             continue
                         self.doMove(row + incrementRows, column + incrementColumns)
-        self.save()
+        if self.save():
+            print("Saved")
+        else:
+            print("Failed to save")
     
     def reset(self):
         try:
@@ -251,7 +253,7 @@ class Game:
         tkinter.messagebox.showinfo("Game over","You lost!!!")
         
     def youWin(self):
-        if self.getTime() - self.startTimer < self.player.getRecord() or self.player.getRecord() is None:
+        if self.player.getRecord() is None or self.getTime() - self.startTimer < self.player.getRecord():
             self.player.setRecord(self.getTime())
         self.end()
         tkinter.messagebox.showinfo("Game over","You Win!!!")
@@ -264,23 +266,44 @@ class Game:
     def secondRightClick(self, row, column):
         self.board.getCell(row, column).button.bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
         self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.rightClick(row, column))
+        self.board.getCell(row, column).button.configure(bg="SystemButtonFace")
+        
+    def setLabel(self, row, column):
+        """Sets a label"""
+        cellValue = self.board.getCell(row, column).getValue()
+        if cellValue >= 9:
+            self.labels[row][column] = tkinter.Label(text = "X", height = 1, width = 1)
+        elif cellValue > 0:
+            self.labels[row][column] = tkinter.Label(text = str(cellValue), height = 1, width = 1)
+        else:
+            self.labels[row][column] = tkinter.Label(text = "", height = 1, width = 1)
+        self.labels[row][column].grid(row = row, column = column)
         
     def gameLoop(self):
         window = tkinter.Tk()
         playerName = self.requestName()
-    
         if os.path.exists(playerName + ".msg"):
-            self.load(playerName + ".msg")
-        else:
-            self.player = self.Player(playerName)
+            if self.load(playerName + ".msg"):
+                print("Game loaded succesfully. Player's name: {}".format(self.player.getName()))
+            else:
+                print("Game load failed")
+        if self.player is None:
+            self.player = Player(playerName)
         if self.board is None:
-            self.newGame()
+            if self.newGame():
+                print("New game loaded")
+            else:
+                print("New game load failed")
         for row in range(self.board.getRows()):
             for column in range(self.board.getColumns()):
-                self.board.getCell(row, column).button = tkinter.Button(window, height = 1, width = 1)
-                self.board.getCell(row, column).button.grid(row=row, column=column)
-                self.board.getCell(row, column).button.bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
-                self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.rightClick(row, column))
+                if self.board.getCell(row, column).isVisible():
+                    self.setLabel(row, column)
+                else:
+                    self.buttons[row][column] = tkinter.Button(window, height = 1, width = 1)
+                    self.buttons[row][column].grid(row = row, column = column)
+                    self.buttons[row][column].bind('<Button-1>', lambda event, row = row, column = column: self.doMove(row, column))
+                    self.buttons[row][column].bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
+                
         window.mainloop()
         
 if __name__ == "__main__":
