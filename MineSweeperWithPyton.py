@@ -106,17 +106,6 @@ class Board:
         except:
             return False
 
-    def showAllCells(self):
-        try:
-            for row in range(self.rows):
-                for column in range(self.columns):
-                    if self.cells[row][column].isVisible():
-                        continue
-                    self.cells[row][column].setVisible()
-            return True
-        except:
-            return False
-
         
 class Player:
     def __init__(self, name):
@@ -144,14 +133,8 @@ class Game:
         self.player = None
         self.board = Board(14, 18, 1)
         self.startTimer = None
-        self.buttons = []
-        self.labels = []
-        for row in range(self.board.getRows()):
-            self.buttons.append([])
-            self.labels.append([])
-            for column in range(self.board.getColumns()):
-                self.buttons[row].append(None)
-                self.labels[row].append(None)
+        self.buttons = None
+        self.labels = None
     
     def requestName(self):
         return tkinter.simpledialog.askstring("Minesweeper", "Enter your name:")
@@ -239,9 +222,22 @@ class Game:
         except:
             return False
         
+    def showAllCells(self):
+        try:
+            for row in range(self.board.getRows()):
+                for column in range(self.board.getColumns()):
+                    if self.board.getCell[row][column].isVisible():
+                        continue
+                    self.board.getCell[row][column].setVisible()
+                    self.buttons[row][column].destroy()
+                    self.setLabel(row, column)
+            return True
+        except:
+            return False
+    
     def end(self):
         try:
-            self.board.showAllCells()
+            self.showAllCells()
             self.board = None
             self.save()
             return True
@@ -294,12 +290,19 @@ class Game:
                 print("New game loaded")
             else:
                 print("New game load failed")
+        self.labels = []
+        self.buttons = []
         for row in range(self.board.getRows()):
+            self.labels.append([])
+            self.buttons.append([])
             for column in range(self.board.getColumns()):
                 if self.board.getCell(row, column).isVisible():
+                    self.labels[row].append(None)
+                    self.buttons[row].append(None)
                     self.setLabel(row, column)
                 else:
-                    self.buttons[row][column] = tkinter.Button(window, height = 1, width = 1)
+                    self.labels[row].append(None)
+                    self.buttons[row].append(tkinter.Button(window, height = 1, width = 1))
                     self.buttons[row][column].grid(row = row, column = column)
                     self.buttons[row][column].bind('<Button-1>', lambda event, row = row, column = column: self.doMove(row, column))
                     self.buttons[row][column].bind('<Button-3>', lambda event, row = row, column = column: self.rightClick(row, column))
@@ -307,9 +310,5 @@ class Game:
         window.mainloop()
         
 if __name__ == "__main__":
-    #window = tkinter.Tk()
     game = Game()
     game.gameLoop()
-    
-    #window.mainloop()
-    
