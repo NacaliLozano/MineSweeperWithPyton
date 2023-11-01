@@ -5,7 +5,6 @@ import random
 import time
 import pickle
 import os
-from pickle import NONE
 
 
 class Cell:
@@ -145,7 +144,8 @@ class Game:
             with open(self.player.getFileName(), "wb") as f:
                 f.pickle.dump(gameDict, f)
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
 
     def newGame(self):
@@ -205,6 +205,8 @@ class Game:
         if self.board.getCell(row, column).getValue() == 0:
             for incrementRows in [-1, 0, 1]:
                 for incrementColumns in [-1, 0, 1]:
+                    if self.board is None:
+                        break
                     if row + incrementRows in range(self.board.getRows()) and column + incrementColumns in range(self.board.getColumns()):
                         if incrementRows == 0 and incrementColumns == 0:
                             continue
@@ -290,6 +292,9 @@ class Game:
                 print("New game loaded")
             else:
                 print("New game load failed")
+        if self.startTimer is None:
+            self.startTimer = time.time()
+        
         self.labels = []
         self.buttons = []
         for row in range(self.board.getRows()):
