@@ -62,13 +62,13 @@ class Board:
             for column in range(columns):
                 self.cells[row].append(Cell(row, column))
         #Set mines
-        for mine in range(mines):
-            row = random.randint(0, rows -1)
+        placedMines = 0
+        while placedMines < mines:
+            row = random.randint(0, rows - 1)
             column = random.randint(0, columns - 1)
-            while self.cells[row][column].value >= 9:
-                row = random.randint(0, rows -1)
-                column = random.randint(0, columns - 1)
-            self.cells[row][column].value = 9
+            if self.cells[row][column].value != 9:  # Only set if it's not already a mine
+                self.cells[row][column].value = 9
+                placedMines += 1
             
     def setBoard(self):
         """Sets the values of the cells with a mine nearby"""
@@ -142,7 +142,7 @@ class Game:
         gameDict = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
         try:
             with open(self.player.getFileName(), "wb") as f:
-                f.pickle.dump(gameDict, f)
+                pickle.dump(gameDict, f)
             return True
         except Exception as e:
             print(e)
