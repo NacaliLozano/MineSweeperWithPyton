@@ -130,13 +130,25 @@ class Player:
 class Game:
     def __init__(self):
         self.player = None
-        self.board = Board(14, 18, 1)
+        self.board = None
         self.startTimer = None
         self.buttons = None
         self.labels = None
     
-    def requestName(self):
-        return tkinter.simpledialog.askstring("Minesweeper", "Enter your name:")
+    def requestInfo(self, info_type):
+        return tkinter.simpledialog.askstring("Minesweeper", "Enter " + str(info_type) + ":")
+    
+    # def requestName(self):
+    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter your name:")
+    #
+    # def requestDim1(self):
+    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter Dim1:")
+    #
+    # def requestDim2(self):
+    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter Dim2:")
+    #
+    # def requestMines(self):
+    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter Mines:")
     
     def save(self):
         gameDict = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
@@ -148,13 +160,14 @@ class Game:
             print(e)
             return False
 
-    def newGame(self):
+    def newGame(self, dim1 = 14, dim2 = 18, mines = 10):
         try:
-            self.board = Board(14, 18, 1)
+            self.board = Board(dim1, dim2, mines)
             self.board.setBoard()
             self.startTimer = time.time()
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
 
     def load(self, fileName):
@@ -279,16 +292,22 @@ class Game:
         
     def gameLoop(self):
         window = tkinter.Tk()
-        playerName = self.requestName()
+        playerName = self.requestInfo("Name")
+        dim1 = int(self.requestInfo("Dim1"))
+        dim2 = int(self.requestInfo("Dim2"))
+        mines = int(self.requestInfo("Mines"))
+        
         if os.path.exists(playerName + ".msg"):
             if self.load(playerName + ".msg"):
                 print("Game loaded succesfully. Player's name: {}".format(self.player.getName()))
             else:
                 print("Game load failed")
+                
         if self.player is None:
             self.player = Player(playerName)
+            
         if self.board is None:
-            if self.newGame():
+            if self.newGame(dim1, dim2, mines):
                 print("New game loaded")
             else:
                 print("New game load failed")
