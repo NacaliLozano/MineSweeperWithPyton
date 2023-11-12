@@ -27,26 +27,20 @@ class Cell:
         return self.value
     
     def setVisible(self):
-        """Sets a Cell to visible state"""
+        """Sets a Cell to visible state and returns True when it could do it and False otherwise"""
         if self.visible:
             return False
-        try:
+        else:
             self.visible = True
             return True
-        except:
-            return False
     
     def isVisible(self):
         return self.visible
     
     def swapVisible(self):
         """Swaps the value of visible"""
-        try:
-            self.visible = not self.visible
-            return True
-        except:
-            return False
-        
+        self.visible = not self.visible
+            
 class Board:
     def __init__(self, rows, columns, mines):
         """Initializes an empty board and sets the mines"""
@@ -99,12 +93,7 @@ class Board:
         return self.remainingCoveredCells
     
     def setRemainingCoveredCells(self, value):
-        try:
             self.remainingCoveredCells = value
-            return True
-        except:
-            return False
-
         
 class Player:
     def __init__(self, name):
@@ -138,18 +127,6 @@ class Game:
     def requestInfo(self, info_type):
         return tkinter.simpledialog.askstring("Minesweeper", "Enter " + str(info_type) + ":")
     
-    # def requestName(self):
-    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter your name:")
-    #
-    # def requestDim1(self):
-    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter Dim1:")
-    #
-    # def requestDim2(self):
-    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter Dim2:")
-    #
-    # def requestMines(self):
-    #     return tkinter.simpledialog.askstring("Minesweeper", "Enter Mines:")
-    
     def save(self):
         gameDict = {"Board": self.board, "Time": self.getTime(), "Player": self.player}
         try:
@@ -161,14 +138,9 @@ class Game:
             return False
 
     def newGame(self, dim1 = 14, dim2 = 18, mines = 10):
-        try:
-            self.board = Board(dim1, dim2, mines)
-            self.board.setBoard()
-            self.startTimer = time.time()
-            return True
-        except Exception as e:
-            print(e)
-            return False
+        self.board = Board(dim1, dim2, mines)
+        self.board.setBoard()
+        self.startTimer = time.time()
 
     def load(self, fileName):
         try:
@@ -181,7 +153,8 @@ class Game:
                     self.startTimer = time.time() - gameDict["Time"]
                 self.player = gameDict["Player"]
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
     
     def getPlayer(self):
@@ -234,7 +207,8 @@ class Game:
             self.board = Board(self.board.getRows(), self.board.getColumns(), self.board.getMines())
             self.startTimer = time.time()
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
         
     def showAllCells(self):
@@ -247,7 +221,8 @@ class Game:
                     self.buttons[row][column].destroy()
                     self.setLabel(row, column)
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
     
     def end(self):
@@ -256,7 +231,8 @@ class Game:
             self.board = None
             self.save()
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
         
     def youLoose(self):
@@ -270,14 +246,14 @@ class Game:
         tkinter.messagebox.showinfo("Game over","You Win!!!")
         
     def rightClick(self, row, column):
-        self.board.getCell(row, column).button.unbind('<Button-1>')
-        self.board.getCell(row, column).button.configure(bg="red")
-        self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.secondRightClick(row, column))
+        self.buttons[row][column].unbind('<Button-1>')
+        self.buttons[row][column].configure(bg="red")
+        self.buttons[row][column].bind('<Button-3>', lambda event, row=row, column=column: self.secondRightClick(row, column))
         
     def secondRightClick(self, row, column):
-        self.board.getCell(row, column).button.bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
-        self.board.getCell(row, column).button.bind('<Button-3>', lambda event, row=row, column=column: self.rightClick(row, column))
-        self.board.getCell(row, column).button.configure(bg="SystemButtonFace")
+        self.buttons[row][column].bind('<Button-1>', lambda event, row=row, column=column: self.doMove(row, column))
+        self.buttons[row][column].bind('<Button-3>', lambda event, row=row, column=column: self.rightClick(row, column))
+        self.buttons[row][column].configure(bg="SystemButtonFace")
         
     def setLabel(self, row, column):
         """Sets a label"""
