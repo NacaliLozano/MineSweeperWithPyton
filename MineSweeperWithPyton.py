@@ -240,10 +240,13 @@ class Game:
         tkinter.messagebox.showinfo("Game over","You lost!!!")
         
     def youWin(self):
-        if self.player.getRecord() is None or self.getTime() - self.startTimer < self.player.getRecord():
+        if self.player.getRecord() is None or self.getTime() < self.player.getRecord():
             self.player.setRecord(self.getTime())
+            tkinter.messagebox.showinfo("Game over","You Win!!!\nYour new record is: " + str(round(self.getTime())))
+        else:
+            tkinter.messagebox.showinfo("Game over","You Win!!!")
         self.end()
-        tkinter.messagebox.showinfo("Game over","You Win!!!")
+        
         
     def rightClick(self, row, column):
         self.buttons[row][column].unbind('<Button-1>')
