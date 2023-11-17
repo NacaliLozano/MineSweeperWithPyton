@@ -134,10 +134,10 @@ class Game:
                 pickle.dump(gameDict, f)
             return True
         except Exception as e:
-            print(e)
+            print("save exception: " + str(e))
             return False
 
-    def newGame(self, dim1 = 14, dim2 = 18, mines = 10):
+    def newGame(self, dim1 = 14, dim2 = 18, mines = 40):
         self.board = Board(dim1, dim2, mines)
         self.board.setBoard()
         self.startTimer = time.time()
@@ -146,15 +146,14 @@ class Game:
         try:
             with open(fileName, "rb") as f:
                 gameDict = pickle.load(f)
-                if gameDict["Board"] == None:
-                    self.newGame()
-                else:
+                if gameDict["Board"] is not None:
                     self.board = gameDict["Board"]
+                if gameDict["Time"] is not None:
                     self.startTimer = time.time() - gameDict["Time"]
                 self.player = gameDict["Player"]
             return True
         except Exception as e:
-            print(e)
+            print("load exception: " + str(e))
             return False
     
     def getPlayer(self):
@@ -208,21 +207,21 @@ class Game:
             self.startTimer = time.time()
             return True
         except Exception as e:
-            print(e)
+            print("reset exception: " + str(e))
             return False
         
     def showAllCells(self):
         try:
             for row in range(self.board.getRows()):
                 for column in range(self.board.getColumns()):
-                    if self.board.getCell[row][column].isVisible():
+                    if self.board.getCell(row, column).isVisible():
                         continue
-                    self.board.getCell[row][column].setVisible()
+                    self.board.getCell(row, column).setVisible()
                     self.buttons[row][column].destroy()
                     self.setLabel(row, column)
             return True
         except Exception as e:
-            print(e)
+            print("sowAllCells exception: " + str(e))
             return False
     
     def end(self):
@@ -232,7 +231,7 @@ class Game:
             self.save()
             return True
         except Exception as e:
-            print(e)
+            print("end exception:" + str(e))
             return False
         
     def youLoose(self):
@@ -269,12 +268,35 @@ class Game:
             self.labels[row][column] = tkinter.Label(text = "", height = 1, width = 1)
         self.labels[row][column].grid(row = row, column = column)
         
+    def requestDim(self, dim):
+        dimStr = self.requestInfo(dim)
+        if not dimStr.isnumeric():
+            tkinter.messagebox.showinfo("Wrong input","Please enter a number.")
+            return self.requestDim(dim)
+        elif int(dimStr) < 2 or int(dimStr) > 30:
+            tkinter.messagebox.showinfo("Wrong input","Please enter a number between 2 and 30.")
+            return self.requestDim(dim)
+        else:
+            return int(dimStr)
+        
+    def requestMines(self, rows, columns):
+        minesStr = self.requestInfo("Mines")
+        if not minesStr.isnumeric():
+            tkinter.messagebox.showinfo("Wrong input","Please enter a number.")
+            return self.requestMines(rows, columns)
+        elif int(minesStr) < 1 or int(minesStr) > (rows * columns - 1):
+            tkinter.messagebox.showinfo("Wrong input","Please enter another number.")
+            return self.requestMines(rows, columns)
+        else:
+            return int(minesStr)
+        
     def gameLoop(self):
         window = tkinter.Tk()
+        
         playerName = self.requestInfo("Name")
-        dim1 = int(self.requestInfo("Dim1"))
-        dim2 = int(self.requestInfo("Dim2"))
-        mines = int(self.requestInfo("Mines"))
+        rows = self.requestDim("Rows")
+        columns = self.requestDim("Columns")
+        mines = self.requestMines(rows, columns)
         
         if os.path.exists(playerName + ".msg"):
             if self.load(playerName + ".msg"):
@@ -286,10 +308,8 @@ class Game:
             self.player = Player(playerName)
             
         if self.board is None:
-            if self.newGame(dim1, dim2, mines):
-                print("New game loaded")
-            else:
-                print("New game load failed")
+            self.newGame(rows, columns, mines)
+            
         if self.startTimer is None:
             self.startTimer = time.time()
         
