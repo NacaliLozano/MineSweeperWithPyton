@@ -284,7 +284,7 @@ class Game:
         if not minesStr.isnumeric():
             tkinter.messagebox.showinfo("Wrong input","Please enter a number.")
             return self.requestMines(rows, columns)
-        elif int(minesStr) < 1 or int(minesStr) > (rows * columns - 1):
+        elif int(minesStr) < 1 or int(minesStr) > rows * columns - 1:
             tkinter.messagebox.showinfo("Wrong input","Please enter another number.")
             return self.requestMines(rows, columns)
         else:
@@ -294,15 +294,14 @@ class Game:
         window = tkinter.Tk()
         
         playerName = self.requestInfo("Name")
-        rows = self.requestDim("Rows")
-        columns = self.requestDim("Columns")
-        mines = self.requestMines(rows, columns)
         
         if os.path.exists(playerName + ".msg"):
             if self.load(playerName + ".msg"):
                 print("Game loaded succesfully. Player's name: {}".format(self.player.getName()))
             else:
-                print("Game load failed")
+                rows = self.requestDim("Rows")
+                columns = self.requestDim("Columns")
+                mines = self.requestMines(rows, columns)
                 
         if self.player is None:
             self.player = Player(playerName)
